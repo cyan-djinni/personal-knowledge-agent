@@ -2,8 +2,11 @@
 
 import os
 from pathlib import Path
-
+from dotenv import load_dotenv
 import yaml
+
+# 优先强制加载 .env 文件中的环境变量
+load_dotenv()
 
 from src.fetchers import (
     fetch_rss, fetch_email, fetch_gmail,
@@ -153,6 +156,7 @@ def run(config_path: str = "sources.yaml", output_dir: str = "summaries", api_ke
     # 把"暂无更新"的条目排到末尾，使输出中有内容的来源优先显示
     valid_items.sort(key=lambda i: i.title == "暂无更新")
 
+    # 调用 summarize（内部会自动去读取 GEMINI_API_KEY）
     summary_text = summarize(valid_items, api_key=api_key, language=language)
 
     output_mode = os.environ.get("OUTPUT_MODE", "markdown")  # notion | markdown | both
@@ -214,10 +218,11 @@ def run(config_path: str = "sources.yaml", output_dir: str = "summaries", api_ke
 
 
 if __name__ == "__main__":
-    api_key = os.environ.get("KIMI_API_KEY")
+    # 改为优先读取免费的 GEMINI_API_KEY
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("请设置环境变量 KIMI_API_KEY")
+        print("❌ 请在 .env 文件或环境变量中设置 GEMINI_API_KEY！")
         exit(1)
 
     out = run(api_key=api_key)
-    print(f"完成！\n{out}")
+    print(f"\n🎉 运行完成！\n{out}")

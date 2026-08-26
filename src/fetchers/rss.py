@@ -69,9 +69,11 @@ def fetch_rss(
         # 跳过超过 max_age_days 的文章
         published_parsed = entry.get("published_parsed") or entry.get("updated_parsed")
         if published_parsed:
-            pub_ts = _time.mktime(published_parsed)
-            if pub_ts < age_cutoff:
-                continue
+            try:
+                pub_ts = _time.mktime(published_parsed)
+            except (OverflowError, ValueError, TypeError):
+                pub_ts = _time.time()
+
 
         # 用链接去重；无链接的文章不去重
         if link and _state.is_seen(st, "seenArticles", link):
