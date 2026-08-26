@@ -16,3 +16,6 @@ google-auth>=2.23.0
 
 # Email (IMAP) - optional
 imapclient>=2.3.0
+
+
+python-dotenv
