@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: "pip"
@@ -37,19 +37,21 @@ jobs:
         run: echo "$TWITTER_COOKIES" | base64 -d > twitter_cookies.json
 
       - name: Restore dedup state cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: state.json
           key: news-summary-state-${{ github.run_id }}
           restore-keys: news-summary-state
 
       - name: Create sources.yaml
+        if: ${{ env.SOURCES_YAML != '' }}
         env:
           SOURCES_YAML: ${{ secrets.SOURCES_YAML }}
         run: echo "$SOURCES_YAML" | tr -d '\n' | base64 -d > sources.yaml
 
       - name: Run summary
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
